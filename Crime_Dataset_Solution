@@ -1,0 +1,14 @@
+df = spark.read.load("/FileStore/tables/Crimes___2001_to_present-9be1b.csv",format="csv",header="true")
+from pyspark.sql.functions import *
+df2 = df.select("id","Primary Type",split(col("Date"),"/").getItem(0).alias("Month"),split(col("Date"),"/").getItem(1).alias("Day"),split(split(col("Date"),"/").getItem(2).alias("Yearwithtime")," ").getItem(0).alias("Year"))
+df2.registerTempTable("Test")
+
+spark.sql("SELECT * from Test").show()
+spark.sql("SELECT id ,Month ,Day ,Year,`Primary Type` FROM Test").show()
+spark.catalog.cacheTable("Test")
+df3 = spark.sql("SELECT cast(concat(Year,Month)AS STRING)AS Month, `Primary Type` AS `crimetype`,cast(count(`Primary Type`)AS STRING) AS `crimecount` from Test group by Month ,Year ,`Primary Type` order by Month asc , Year asc ,count(`Primary Type`) desc")
+df3.show()
+df3.printSchema()
+type(df3)
+df3.write.csv(path="/FileStore/tables/crimes_by_type_by_month",mode="overwrite",sep=",", compression="gzip",header=True)
+            
