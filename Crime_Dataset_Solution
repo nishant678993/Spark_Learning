@@ -12,3 +12,18 @@ df3.printSchema()
 type(df3)
 df3.write.csv(path="/FileStore/tables/crimes_by_type_by_month",mode="overwrite",sep=",", compression="gzip",header=True)
             
+
+
+Solution2 -
+Using RDD and converting to Dataframe-
+
+from pyspark.sql import Row
+from pyspark.sql.functions import *
+crimesRDD_1 = sc.textFile("/FileStore/tables/Crimes___2001_to_present-9be1b.csv")
+crimesRDD_2= crimesRDD_1.map(lambda r : (r.split(",")[0],(r.split(",")[2],r.split(",")[5])))
+crimesRDD_3 = crimesRDD_2.map(lambda r: Row(Date = r[1][0].split("/")[0],Month = r2[1][0].split("/")[1],Year = r2[1][0].split("/")[2].split(" ")[0],Primary_Type= r[1][1]))
+header = crimesRDD_3.first()
+crimesDf = crimesRDD_3.filter(lambda s : s != header).toDF()
+crimesDf.registerTempTable("crimes_data_RDD_to_df")
+crimesDf_file = sqlContext.sql("SELECT cast(concat(Year,Month)AS STRING)AS Month, Primary_Type AS crimetype,cast(count(Primary_Type)AS STRING) AS crimecount from crimes_data_RDD_to_df group by Month ,Year ,Primary_Type order by Month asc , Year asc ,count(Primary_Type) desc")
+crimesDf_file.write.csv(path="/FileStore/tables/crimes_by_type_by_month_rdd_to_df",mode="overwrite",sep=",", compression="gzip",header=True)
