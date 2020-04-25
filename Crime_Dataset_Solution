@@ -19,7 +19,7 @@ crimes_df2.registerTempTable("crimes_rdd")
 spark.catalog.cacheTable("crimes_rdd")
 crimes_df3 = spark.sql("SELECT cast(concat(Year,Month)AS STRING)AS YearMonth, `Primary Type` AS `crimetype`,cast(count(`Primary Type`)AS STRING) AS `crimecount` from crimes_rdd group by Month ,Year ,`Primary Type` order by Month asc , Year asc ,count(`Primary Type`) desc")
 crimes_df3.show()
-crimes_df3.write.csv(path="/FileStore/tables/crimes_by_type_by_month",mode="overwrite",sep=",", compression="gzip",header=True)
+crimes_df3.write.csv(path="/FileStore/tables/crimes_by_type_by_month",mode="overwrite",sep="\t", compression="gzip",header=True)
 
 
 
@@ -39,5 +39,5 @@ crimes_df.registerTempTable("crimesRDD_to_df")
 spark.catalog.cacheTable("crimesRDD_to_df")
 crimes_df_file = sqlContext.sql("SELECT concat(Year,Month)AS Month, Primary_Type AS crimetype,count(Primary_Type) AS crimecount from crimesRDD_to_df group by Month ,Year ,Primary_Type order by Month asc , Year asc ,count(Primary_Type) desc")
 crimes_df_file.show()
-crimes_df_file.write.csv(path="/FileStore/tables/crimes_by_type_by_month_rdd_to_df",mode="overwrite",sep=",", compression="gzip",header=True)
+crimes_df_file.write.csv(path="/FileStore/tables/crimes_by_type_by_month_rdd_to_df",mode="overwrite",sep="\t", compression="gzip",header=True)
 
