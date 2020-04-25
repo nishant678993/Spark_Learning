@@ -1,0 +1,15 @@
+Exercise 05 - Develop word count program
+
+Dataset- Create your own text file.
+
+Question-
+Get word count for the input data using space as delimiter (for each word, we need to get how many types it is repeated in the entire input data set)
+
+
+Solution-
+wordcount = spark.read.load("/FileStore/tables/readme.txt", format = "text")
+wordcount.show()
+from pyspark.sql.functions import *
+wordcount_2 = wordcount.select(explode(split(wordcount.value,"\s+")).alias("word")).groupBy("word").count()
+wordcount_2.select("word","count").show()
+word_count_df = wordcount_2.write.mode ("overwrite").format("avro").options(sep=",", header=True).save(path="/FileStore/tables/word_count_avro")
