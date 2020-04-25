@@ -1,8 +1,9 @@
+Exercise 02 - Get details of inactive customers
+
 Dataset-
 https://github.com/dgadiraju/data/tree/master/retail_db
 
 Question-
-
 Source Columns - orders - order_id, order_date, order_customer_id, order_status
 Source Columns - customers - customer_id, customer_fname, customer_lname and many more
 Get the customers who have not placed any orders, sorted by customer_lname and then customer_fname
