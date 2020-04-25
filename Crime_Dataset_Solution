@@ -1,5 +1,13 @@
 Exercise 01 - Get monthly crime count by type
+
 Dataset - https://data.cityofchicago.org/Public-Safety/Crimes-2001-to-present/ijzp-q8t2/data
+
+Question-
+Structure of data (ID,Case Number,Date,Block,IUCR,Primary Type,Description,Location Description,Arrest,Domestic,Beat,District,Ward,Community Area,FBI Code,X Coordinate,Y Coordinate,Year,Updated On,Latitude,Longitude,Location)
+File format - text file
+Delimiter - “,”
+Get monthly count of primary crime type, sorted by month in ascending and number of crimes per type in descending order
+
 
 Solution 1-
 Using Dataframe
