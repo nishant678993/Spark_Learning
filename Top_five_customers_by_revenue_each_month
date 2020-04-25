@@ -1,0 +1,42 @@
+Exercise 06 - Get details of top 5 customers by revenue for each month
+
+Dataset- https://github.com/dgadiraju/data/tree/master/retail_db
+
+Question-
+
+Get details of top 5 customers by revenue for each month
+We need to get all the details of the customer along with month and revenue per month
+Data need to be sorted by month in ascending order and revenue per month in descending order
+Create table top5_customers_per_month in <YOUR_USER_ID>_retail_db_txt
+Insert the output into the newly created table
+
+
+Solution-
+
+ordersDf = spark.read.load("/FileStore/tables/retail_db/orders_part_00000-6a61b",format = "csv",sep=',')
+ordersDf_2 = ordersDf.withColumnRenamed('_c0','order_id').withColumnRenamed('_c1','order_date').withColumnRenamed('_c2','order_customer_id').withColumnRenamed('_c3','order_status')
+ordersDf_2.registerTempTable("orders_temp")
+spark.sql("SELECT * FROM orders_temp").show()
+spark.sql("CREATE TABLE orders (order_id INT, order_date STRING,order_customer_id INT,order_status STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY ','")
+spark.sql("INSERT  INTO orders  SELECT * FROM orders_temp")
+
+###########################################################################################################################################
+
+order_items_Df = spark.read.load("/FileStore/tables/retail_db/order_items_part_00000-15efa",format = "csv",sep=',')
+order_items_Df_2 = order_items_Df.withColumnRenamed('_c0','order_item_id').withColumnRenamed('_c1','order_item_order_id').withColumnRenamed('_c2','order_item_product_id').withColumnRenamed('_c3','order_item_quantity'). \
+withColumnRenamed('_c4','order_item_subtotal').withColumnRenamed('_c5','order_item_product_price')
+order_items_Df_2.registerTempTable("orders_items_temp")
+spark.sql("SELECT * FROM orders_items_temp").show()
+spark.sql("CREATE TABLE orders_items (order_item_id INT, order_item_order_id INT,order_item_product_id INT,order_item_quantity INT,order_item_subtotal FLOAT,order_item_product_price FLOAT) \
+          ROW FORMAT DELIMITED FIELDS TERMINATED BY ','")
+spark.sql("INSERT  INTO orders_items  SELECT * FROM orders_items_temp")
+
+###########################################################################################################################################
+
+customers_Df = spark.read.load("/FileStore/tables/retail_db/customers_part_00000-4d4b2",format = "csv",sep=',')
+customers_Df_2 = customers_Df.withColumnRenamed('_c0','customer_id').withColumnRenamed('_c1','customer_fname').withColumnRenamed('_c2','customer_lname').withColumnRenamed('_c3','customer_email'). \
+withColumnRenamed('_c4','customer_password').withColumnRenamed('_c5','customer_street').withColumnRenamed('_c6','customer_city').withColumnRenamed('_c7','customer_state').withColumnRenamed('_c8','customer_zipcode')
+customers_Df_2.registerTempTable("customers_temp")
+spark.sql("SELECT * FROM customers_temp").show()
+spark.sql("CREATE TABLE customers (customer_id INT, customer_fname STRING,customer_lname STRING,customer_email STRING,customer_password STRING,customer_street STRING,customer_city STRING,customer_state STRING,customer_zipcode STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY ','")
+spark.sql("INSERT  INTO customers  SELECT * FROM customers_temp")
