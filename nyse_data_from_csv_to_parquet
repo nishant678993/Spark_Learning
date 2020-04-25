@@ -1,0 +1,12 @@
+Exercise 04 - Convert nyse data to parquet
+
+Dataset- https://github.com/dgadiraju/data/tree/master/nyse
+
+Question-
+Fields (stockticker:string, transactiondate:string, openprice:float, highprice:float, lowprice:float, closeprice:float, volume:bigint)
+Convert file format to parquet
+
+Solution 4-
+nyse_df = spark.read.load("/FileStore/tables/nyse_data", format = "csv")
+nyse_df2=nyse_df.withColumnRenamed('_c0','stockticker').withColumnRenamed('_c1','transactiondate').withColumnRenamed('_c2','openprice').withColumnRenamed('_c3','highprice').withColumnRenamed('_c4','lowprice').withColumnRenamed('_c5','closeprice').withColumnRenamed('_c6','volume')
+nyse_df3 = nyse_df2.write.parquet("/FileStore/tables/nyse_data_parquet",mode="overwrite")
