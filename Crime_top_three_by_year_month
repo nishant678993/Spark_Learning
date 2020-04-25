@@ -1,0 +1,20 @@
+Exercise 03 - Get top 3 crime types based on number of incidents in RESIDENCE area
+
+Dataset - https://data.cityofchicago.org/Public-Safety/Crimes-2001-to-present/ijzp-q8t2/data
+
+Question-
+Structure of data (ID,Case Number,Date,Block,IUCR,Primary Type,Description,Location Description,Arrest,Domestic,Beat,District,Ward,Community Area,FBI Code,X Coordinate,Y Coordinate,Year,Updated On,Latitude,Longitude,Location)
+File format - text file
+Delimiter - “,” (use regex while splitting split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1), as there are some fields with comma and enclosed using double quotes.
+Get top 3 crime types based on number of incidents in RESIDENCE area using “Location Description”
+
+
+Solution-
+
+crimes_df = spark.read.load("/FileStore/tables/Crimes___2001_to_present-9be1b.csv",format="csv",header="true")
+from pyspark.sql.functions import *
+crimes_df2 = crimes_df.select("Primary Type",split(col("Date"),"/").getItem(0).alias("Month"),split(col("Date"),"/").getItem(1).alias("Day"),split(split(col("Date"),"/").getItem(2).alias("Yearwithtime")," ").getItem(0).alias("Year"),"Location Description")
+crimes_df2.registerTempTable("crimes_rdd_location")
+spark.catalog.cacheTable("crimes_rdd_location")
+crimes_df3 = spark.sql("with crime AS (SELECT YearMonth,crimetype,crimecount,dense_rank() over(partition by YearMonth order by cast(crimecount AS INT) DESC) rank from (SELECT cast(concat(Year,Month)AS STRING)AS YearMonth, `Primary Type` AS `crimetype`,cast(count(`Primary Type`)AS STRING) AS `crimecount` from crimes_rdd_location where `Location Description` = 'RESIDENCE' group by Month ,Year ,`Primary Type` order by Month asc , Year asc ,count(`Primary Type`) desc) order by YearMonth ASC , rank ASC) SELECT YearMonth , crimetype , crimecount FROM crime WHERE rank < 4")
+crimes_df3.write.csv(path="/FileStore/tables/crimes_top_three_by_year_month",mode="overwrite",sep="," ,header=True)
