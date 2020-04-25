@@ -1,0 +1,23 @@
+Dataset-
+https://github.com/dgadiraju/data/tree/master/retail_db
+
+Question-
+
+Source Columns - orders - order_id, order_date, order_customer_id, order_status
+Source Columns - customers - customer_id, customer_fname, customer_lname and many more
+Get the customers who have not placed any orders, sorted by customer_lname and then customer_fname
+Target Columns: customer_lname, customer_fname
+
+Solution-
+
+df_customers = spark.read.load("/FileStore/tables/customers_part_00000-4d4b2",format = "csv")
+df2_customers = df_customers.withColumnRenamed('_c0','customer_id').withColumnRenamed('_c1','customer_fname').withColumnRenamed('_c2','customer_lname').drop('_c4','_c3','_c5','_c6','_c7','_c8')
+df2_customers.registerTempTable("customers_df")
+spark.catalog.cacheTable("customers_df")
+df_orders= spark.read.load("/FileStore/tables/orders_part_00000-6a61b",format="csv")
+df2_orders = df_orders.withColumnRenamed('_c0','order_id').withColumnRenamed('_c1','order_date').withColumnRenamed('_c2','order_customer_id').withColumnRenamed('_c3','order_status')
+df2_orders.registerTempTable("orders_df")
+spark.catalog.cacheTable("orders_df")
+df3_customers_with_no_orders = spark.sql("select a.customer_fname , a.customer_lname from customers_df a left outer join orders_df b on a.customer_id = b.order_customer_id where b.order_customer_id is null order by a.customer_lname , a.customer_fname")
+df3_customers_with_no_orders.write.format('csv').options(sep=',').mode('overwrite').save(path='FileStore/tables/customers_with_no_orders')
+
