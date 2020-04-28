@@ -1,0 +1,24 @@
+Dataset-
+
+https://s3.amazonaws.com/acadgildsite/wordpress_images/bigdatadeveloper/Olympics_Analysis/Soccer_Data_Set.docx.csv
+
+soccer_df = spark.read.load("/FileStore/tables/Soccer_Data_set.csv",format = "csv", header = "true", sep=",")
+soccer_df.show()
+soccer_df.registerTempTable("soccer_table")
+
+
+Ques 1- Find the total number of bronze medals won by each country in Football.
+
+spark.sql("SELECT Country , count(*) FROM soccer_table where Sport = 'Football' and Medal = 'Bronze' group by Country order by Country").show()
+
+Ques 2- Find the number of Medals won by the USA grouped by sport.
+
+spark.sql("SELECT COUNT(Medal),Country,Sport from soccer_table where Country = 'USA' group by Country,Sport").show()
+
+Ques 3- Find the total number of medals won by each country displayed by type of medal.
+
+spark.sql("select count(medal),Country,Medal from soccer_table group by Country , Medal").show()
+
+Ques 4- Find how many Silver medals have been given to Mexico and the year of each.
+
+spark.sql("SELECT COUNT(medal),year,medal from soccer_table where Country = 'MEX' group by year,medal").show()
